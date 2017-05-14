@@ -1,4 +1,4 @@
-# wsl-interop
+# WIP wsl-interop
 Windows Subsystem for Linux integration between bash and PowerShell.  Call Windows binaries from Linux and vice versa.
 
 WSL already allows calling Windows binaries from within bash. For example `/mnt/c/Windows/System32/notepad.exe`.  It even populates the Linux $PATH with Windows $PATH so you can do `notepad.exe`.  However, it doesn't do lookups with `$PathExt`, so you can't do `notepad` without the extension.  TODO does it allow launching `.cmd` or `.ps1`?
