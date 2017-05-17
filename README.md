@@ -8,6 +8,12 @@ The argv array must be bash-escaped and then Windows-escaped.
 
 ## WIP
 
+* [ ] Powershell cmdlets for path conversion
+* [ ] Test harness
+* [ ] Complete tests
+* [ ] Windows `which` from Linux
+* [ ] Confirm that PSM1 will auto-load when one of the Cmdlets is invoked
+
 ### Use cases
 
 #### Convert Windows path to Linux path
