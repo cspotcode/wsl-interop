@@ -10,6 +10,9 @@ WSL already allows calling Windows binaries from within bash. For example `/mnt/
 Calling Linux binaries from Windows requires calling `bash.exe -c "linuxCommand arg1 arg2 arg3"`
 The argv array must be bash-escaped and then Windows-escaped.
 
+*TODO implement this; explain further*  
+Windows processes launched from WSL do not terminate when the equivalent Linux process is terminated.  Our shim `win` command should handle SIGTERM and somehow send a termination signal to the Windows process.  Does Windows have an equivalent of SIGTERM?
+
 ## WIP
 
 * [x] Powershell cmdlets for path conversion
