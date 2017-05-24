@@ -1,5 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
+# TODO command-line also needs to interpolate environment variables
+
 Function Get-ShellOpenCommand {
     param(
         # Gets command to open files with this extension
