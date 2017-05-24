@@ -1,8 +1,47 @@
+param(
+    [Parameter(Position=0)][switch]$Testing
+)
 # Install this as a module in Powershell
+
+#TODO remove all this workaround crap; it's impossible to workaround this bug
+# Detect the bug fixed by this PR: https://github.com/PowerShell/PowerShell/pull/2182
+# (True == bug is present)
+$argWrappingBug = (cmd.exe /C echo '\" ')[0] -ceq "\"
+# Implementation of buggy logic that decides when to wrap arg in double quotes
+Function buggyNeedQuotes($s) {
+    $needQuotes = $false
+    $quoteCount = 0
+    for($i = 0 ; $i -lt $s.length ; $i += 1) {
+        if($s[$i] -ceq '"') {
+            $quoteCount += 1
+        } elseif ([char]::IsWhiteSpace($stringToCheck[$i]) -and ($quoteCount % 2 -eq 0)) {
+            $needQuotes = $true
+        }
+    }
+    return $needQuotes
+}
 
 Function Encode-Arguments {
     Process {
-        $out = "$( $_ -Replace '(\\+)$','$1$1' -Replace '(\\*)"','$1$1\"' )"
+        # Encode the argument assuming another process will wrap in double quotes if and only if necessary
+
+        $out = $_
+
+        # Replace all sequences of backslashes followed by doublequote with escaped versions of each. (\\" becomes \\\\\")
+        $out = $out -Replace '(\\*)"','$1$1\"'
+
+        $shouldBeWrapped = [regex]::IsMatch($out, '\s')
+        $willBeWrapped = if($argWrappingBug) { buggyNeedQuotes($out) } else { $shouldBeWrapped }
+
+        if($shouldBeWrapped) {
+            # Escape all trailing backslashes because they will be followed by a closing double quote
+            $out = $out -Replace '(\\+)$','$1$1'
+        }
+
+        #If Powershell is going to erroneously skip wrapping this arg, we do it manually.
+        if($shouldBeWrapped -and -not $willBeWrapped) {
+            $out = '"' + $out + '"'
+        }
         Write-Output $out
         # If we need to wrap in double quotes:
         #Write-Output "`"$out`""
@@ -198,3 +237,6 @@ Function Run-Linux {
 }
 
 Export-ModuleMember -Function Run-Linux,ConvertTo-LinuxPath,ConvertFrom-LinuxPath,Get-LinuxMounts,Normalize-Path
+if($testing) {
+    Export-ModuleMember -Function Run-Linux,ConvertTo-LinuxPath,ConvertFrom-LinuxPath,Get-LinuxMounts,Normalize-Path,Encode-Arguments
+}
